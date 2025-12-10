@@ -1,0 +1,16 @@
+services:
+  postgres:
+    container_name: e-commerce
+    image: bitnami/postgresql:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user_docker
+      POSTGRES_PASSWORD: password_docker
+      POSTGRES_DB: api_ecommerce_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+    driver: local

@@ -1,0 +1,41 @@
+## ACESSAR O MYSQL DO DOCKER ##
+docker exec -it mysql-thygas-coins mysql -u root -p
+
+## CRIAR DATABASE NO MYSQL ##
+CREATE DATABASE api_ecommerce_db;
+
+## ACESSAR O DATABASE CRIADO ##
+USE api_ecommerce_db;
+
+## CRIAR TABELAS ##
+CREATE TABLE categories (
+    id VARCHAR(32) PRIMARY KEY,        -- CUID
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ,
+    disabled_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description VARCHAR(510),
+    image VARCHAR(255)
+);
+
+CREATE INDEX idx_categories_name ON categories (name);
+CREATE INDEX idx_categories_name_lower ON categories (LOWER(name));
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_categories_name_trgm ON categories USING GIN (name gin_trgm_ops);
+CREATE INDEX idx_categories_name_active ON categories (name) WHERE deleted_at IS NULL;
+
+## Função da trigger ##
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+## Trigger que atualiza updated_at automaticamente ##
+CREATE TRIGGER trg_set_updated_at
+BEFORE UPDATE ON categories
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
