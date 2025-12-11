@@ -14,7 +14,7 @@ CREATE TABLE categories (
     updated_at TIMESTAMPTZ,
     disabled_at TIMESTAMPTZ,
     deleted_at TIMESTAMPTZ,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     description VARCHAR(510),
     image VARCHAR(255)
 );
