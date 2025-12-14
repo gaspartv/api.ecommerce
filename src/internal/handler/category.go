@@ -3,12 +3,12 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/gaspartv/api.ecommerce/src/config"
 	"github.com/gaspartv/api.ecommerce/src/external/storage"
 	"github.com/gaspartv/api.ecommerce/src/internal/entity"
 	"github.com/gin-gonic/gin"
@@ -16,14 +16,16 @@ import (
 )
 
 type CategoryHandle struct {
-	db *gorm.DB
-	r2 *s3.Client
+	db  *gorm.DB
+	r2  *s3.Client
+	env *config.Env
 }
 
-func NewCategoryHandler(db *gorm.DB, r2 *s3.Client) *CategoryHandle {
+func NewCategoryHandler(db *gorm.DB, r2 *s3.Client, env *config.Env) *CategoryHandle {
 	return &CategoryHandle{
-		db: db,
-		r2: r2,
+		db:  db,
+		r2:  r2,
+		env: env,
 	}
 }
 
@@ -35,7 +37,7 @@ func (h *CategoryHandle) Create(ctx *gin.Context) {
 		return
 	}
 
-	category := entity.NewCategory(categoryCreate)
+	category := entity.NewCategory(categoryCreate, h.env)
 
 	err := h.db.Where("name = ?", category.Name).First(&entity.Category{}).Error
 	if err == nil {
@@ -70,6 +72,16 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 		limit = 20
 	}
 
+	orderBy := ctx.Query("order_by")
+	if orderBy == "" {
+		orderBy = "updated_at"
+	}
+
+	orderDir := ctx.Query("order_dir")
+	if orderDir != "asc" && orderDir != "desc" {
+		orderDir = "desc"
+	}
+
 	offset := (page - 1) * limit
 
 	query := h.db.Model(&entity.Category{}).Where("deleted_at IS NULL")
@@ -90,7 +102,7 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 	if err := query.
 		Limit(limit).
 		Offset(offset).
-		Order("updated_at DESC").
+		Order(fmt.Sprintf("%s %s", orderBy, orderDir)).
 		Find(&categories).Error; err != nil {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -98,11 +110,10 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":       categories,
-		"total":      total,
-		"page":       page,
-		"limit":      limit,
-		"totalPages": int(math.Ceil(float64(total) / float64(limit))),
+		"data":  categories,
+		"total": total,
+		"page":  page,
+		"limit": limit,
 	})
 }
 

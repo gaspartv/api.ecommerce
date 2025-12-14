@@ -54,7 +54,7 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	routes.CategoryRoutes(router, db, r2)
+	routes.CategoryRoutes(router, db, r2, env)
 
 	router.Run(":" + env.Port)
 }

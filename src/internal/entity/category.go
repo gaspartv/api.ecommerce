@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"github.com/gaspartv/api.ecommerce/src/config"
 	"github.com/nrednav/cuid2"
 	"gorm.io/gorm"
 )
@@ -32,10 +33,11 @@ type CategoryChangeImage struct {
 	Image string `json:"image" binding:"required"`
 }
 
-func NewCategory(create CategoryCreate) *Category {
+func NewCategory(create CategoryCreate, env *config.Env) *Category {
 	return &Category{
 		ID:          cuid2.Generate(),
 		Name:        create.Name,
 		Description: create.Description,
+		Image:       env.IMAGE_CATEGORY_DEFAULT_URL,
 	}
 }

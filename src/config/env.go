@@ -8,17 +8,18 @@ import (
 )
 
 type Env struct {
-	Port         string `validate:"required"`
-	DatabaseHost string `validate:"required"`
-	DatabaseUser string `validate:"required"`
-	DatabasePass string `validate:"required"`
-	DatabaseName string `validate:"required"`
-	DatabasePort string `validate:"required"`
-	R2AccessKey  string `validate:"required"`
-	R2SecretKey  string `validate:"required"`
-	R2Endpoint   string `validate:"required"`
-	R2Bucket     string `validate:"required"`
-	R2PublicURL  string `validate:"required"`
+	Port                       string `validate:"required"`
+	DatabaseHost               string `validate:"required"`
+	DatabaseUser               string `validate:"required"`
+	DatabasePass               string `validate:"required"`
+	DatabaseName               string `validate:"required"`
+	DatabasePort               string `validate:"required"`
+	R2AccessKey                string `validate:"required"`
+	R2SecretKey                string `validate:"required"`
+	R2Endpoint                 string `validate:"required"`
+	R2Bucket                   string `validate:"required"`
+	R2PublicURL                string `validate:"required"`
+	IMAGE_CATEGORY_DEFAULT_URL string `validate:"required"`
 }
 
 func LoadEnv() (*Env, error) {
@@ -38,6 +39,7 @@ func LoadEnv() (*Env, error) {
 	env.R2Endpoint = os.Getenv("R2_ENDPOINT")
 	env.R2Bucket = os.Getenv("R2_BUCKET")
 	env.R2PublicURL = os.Getenv("R2_PUBLIC_URL")
+	env.IMAGE_CATEGORY_DEFAULT_URL = os.Getenv("IMAGE_CATEGORY_DEFAULT_URL")
 
 	validate := validator.New()
 	if err := validate.Struct(env); err != nil {
