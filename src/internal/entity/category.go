@@ -8,14 +8,14 @@ import (
 )
 
 type Category struct {
-	ID          string         `gorm:"type:varchar(32);primaryKey"`
-	CreatedAt   time.Time      `gorm:"type:timestamptz;not null;default:now()"`
-	UpdatedAt   *time.Time     `gorm:"type:timestamptz"`
-	DisabledAt  *time.Time     `gorm:"type:timestamptz"`
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Name        string         `gorm:"type:varchar(255);not null;uniqueIndex"`
-	Description string         `gorm:"type:varchar(510)"`
-	Image       string         `gorm:"type:varchar(255)"`
+	ID          string         `gorm:"type:varchar(32);primaryKey" json:"id"`
+	CreatedAt   time.Time      `gorm:"type:timestamptz;not null;default:now()" json:"created_at"`
+	UpdatedAt   *time.Time     `gorm:"type:timestamptz" json:"updated_at,omitempty"`
+	DisabledAt  *time.Time     `gorm:"type:timestamptz" json:"disabled_at,omitempty"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	Name        string         `gorm:"type:varchar(255);not null;uniqueIndex" json:"name"`
+	Description string         `gorm:"type:varchar(510)" json:"description"`
+	Image       string         `gorm:"type:varchar(255)" json:"image"`
 }
 
 type CategoryCreate struct {
@@ -24,8 +24,8 @@ type CategoryCreate struct {
 }
 
 type CategoryEdit struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 type CategoryChangeImage struct {
