@@ -60,7 +60,6 @@ func (h *CategoryHandle) Create(ctx *gin.Context) {
 }
 
 func (h *CategoryHandle) List(ctx *gin.Context) {
-	search := ctx.Query("search")
 
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	if page < 1 {
@@ -86,9 +85,23 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 
 	query := h.db.Model(&entity.Category{}).Where("deleted_at IS NULL")
 
+	search := ctx.Query("search")
 	if search != "" {
 		like := "%" + search + "%"
 		query = query.Where("name ILIKE ? OR description ILIKE ?", like, like)
+	}
+
+	status := ctx.Query("status")
+	if status != "" {
+		switch status {
+		case "enabled":
+			query = query.Where("disabled_at IS NULL")
+		case "disabled":
+			query = query.Where("disabled_at IS NOT NULL")
+		default:
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status value"})
+			return
+		}
 	}
 
 	var categories []entity.Category
@@ -184,6 +197,11 @@ func (h *CategoryHandle) Edit(ctx *gin.Context) {
 
 	if body.Description != nil && *body.Description != current.Description {
 		updates["description"] = *body.Description
+	}
+
+	if len(*body.Description) > 510 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Description exceeds maximum length of 510 characters"})
+		return
 	}
 
 	if len(updates) == 0 {

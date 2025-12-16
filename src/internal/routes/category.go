@@ -9,7 +9,6 @@ import (
 )
 
 func CategoryRoutes(router *gin.Engine, db *gorm.DB, r2 *s3.Client, env *config.Env) {
-
 	categoryHandler := handler.NewCategoryHandler(db, r2, env)
 	categoryGroup := router.Group("categories")
 	{
