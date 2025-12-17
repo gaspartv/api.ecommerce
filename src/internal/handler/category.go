@@ -60,7 +60,6 @@ func (h *CategoryHandle) Create(ctx *gin.Context) {
 }
 
 func (h *CategoryHandle) List(ctx *gin.Context) {
-
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	if page < 1 {
 		page = 1
@@ -94,9 +93,9 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 	status := ctx.Query("status")
 	if status != "" {
 		switch status {
-		case "enabled":
+		case "active":
 			query = query.Where("disabled_at IS NULL")
-		case "disabled":
+		case "inactive":
 			query = query.Where("disabled_at IS NOT NULL")
 		default:
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status value"})
@@ -272,11 +271,16 @@ func (h *CategoryHandle) Disable(ctx *gin.Context) {
 	}
 
 	msg := "Category enabled successfully"
+	status := "active"
 	if cat.DisabledAt == nil {
 		msg = "Category disabled successfully"
+		status = "inactive"
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": msg})
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  status,
+		"message": msg,
+	})
 }
 
 func (h *CategoryHandle) ChangeImage(ctx *gin.Context) {
