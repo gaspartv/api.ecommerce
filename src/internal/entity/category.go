@@ -19,6 +19,11 @@ type Category struct {
 	Image       string         `gorm:"type:varchar(255)" json:"image"`
 }
 
+type CategorySelect struct {
+	ID   string `gorm:"type:varchar(32);primaryKey" json:"id"`
+	Name string `gorm:"type:varchar(255);not null;uniqueIndex" json:"name"`
+}
+
 type CategoryCreate struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description" binding:"required"`

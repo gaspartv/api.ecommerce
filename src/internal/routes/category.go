@@ -19,5 +19,6 @@ func CategoryRoutes(router *gin.Engine, db *gorm.DB, r2 *s3.Client, env *config.
 		categoryGroup.DELETE("delete", categoryHandler.Delete)
 		categoryGroup.PATCH("disable", categoryHandler.Disable)
 		categoryGroup.PATCH("change-image", categoryHandler.ChangeImage)
+		categoryGroup.GET("list-select", categoryHandler.ListSelect)
 	}
 }

@@ -322,3 +322,18 @@ func (h *CategoryHandle) ChangeImage(ctx *gin.Context) {
 
 	ctx.JSON(200, gin.H{"message": "Image updated successfully"})
 }
+
+func (h *CategoryHandle) ListSelect(ctx *gin.Context) {
+	var categories []entity.CategorySelect
+
+	query := h.db.Model(&entity.Category{}).Where("deleted_at IS NULL")
+
+	if err := query.Find(&categories).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": categories,
+	})
+}
