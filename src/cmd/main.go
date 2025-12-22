@@ -55,7 +55,8 @@ func main() {
 	}))
 
 	routes.CategoryRoutes(router, db, r2, env)
-	routes.ProductRoutes(router, db, env)
+	routes.ProductRoutes(router, db, r2, env)
+	routes.UserRoutes(router, db, r2, env)
 
 	router.Run(":" + env.Port)
 }

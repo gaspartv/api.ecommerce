@@ -26,6 +26,11 @@ type Product struct {
 	IsFeatured    bool           `gorm:"type:boolean;not null;default:false" json:"is_featured"`
 }
 
+type ProductWithCategory struct {
+	Product
+	CategoryName string `json:"category_name"`
+}
+
 type ProductCreate struct {
 	Name          string  `json:"name" binding:"required"`
 	Description   string  `json:"description" binding:"required"`

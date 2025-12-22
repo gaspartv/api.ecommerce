@@ -103,13 +103,13 @@ func (h *CategoryHandle) List(ctx *gin.Context) {
 		}
 	}
 
-	var categories []entity.Category
 	var total int64
-
 	if err := query.Count(&total).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	var categories []entity.Category
 
 	if err := query.
 		Limit(limit).

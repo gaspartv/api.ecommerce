@@ -82,3 +82,47 @@ EXECUTE FUNCTION set_updated_at();
 ## Alterar default da coluna image em products ##
 ALTER TABLE products
     ALTER COLUMN image SET DEFAULT 'https://pub-ed3dc7ef7c4246a1920ae855cc06d5e4.r2.dev/products/product-default.jpg';
+
+##### CREATE USER #####
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE TABLE users (
+    id VARCHAR(32) PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ,
+    disabled_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+    name VARCHAR(255) NOT NULL,
+    image VARCHAR(255) NOT NULL DEFAULT
+        'https://pub-ed3dc7ef7c4246a1920ae855cc06d5e4.r2.dev/products/product-default.jpg',
+    email VARCHAR(255) NOT NULL,
+    email_verified_at TIMESTAMPTZ,
+    password_hash VARCHAR(255) NOT NULL,
+    CONSTRAINT uq_users_email UNIQUE (email),
+    CONSTRAINT chk_users_email_lower CHECK (email = LOWER(email))
+);
+
+CREATE INDEX idx_users_name_trgm
+ON users USING GIN (name gin_trgm_ops)
+WHERE deleted_at IS NULL;
+
+CREATE INDEX idx_users_email_active
+ON users (email)
+WHERE deleted_at IS NULL;
+
+CREATE INDEX idx_users_active
+ON users (is_active)
+WHERE deleted_at IS NULL;
+
+CREATE TRIGGER trg_set_updated_at_users
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+UPDATE users
+SET deleted_at = NOW(), is_active = FALSE
+WHERE id = :user_id;
+
+CREATE UNIQUE INDEX uq_users_email_not_deleted
+ON users (email)
+WHERE deleted_at IS NULL;
